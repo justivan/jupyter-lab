@@ -1,0 +1,11 @@
+numpy
+openpyxl
+pandas
+psycopg2
+python-dotenv
+requests
+requests-ntlm
+scikit-learn
+sqlalchemy
+xlsxwriter
+pytz
