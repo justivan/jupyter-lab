@@ -1,4 +1,3 @@
-jupyterlab
 numpy
 openpyxl
 pandas
