@@ -72,6 +72,7 @@ class RoomMapping:
             ("Season", season),
             ("ContractSPO", "Contract"),
             ("Hotel", "1000000"),
+            ("Operator", "232"),
             ("Operator", "2"),
             ("ReservationBeginDate_From:isnull", True),
             ("ReservationBeginDate_To:isnull", True),
@@ -88,6 +89,35 @@ class RoomMapping:
             ("rs:Format", "CSV"),
             ("rc:ItemPath", "table1"),
         ]
+        self.params = urllib.parse.urlencode(self.payload, quote_via=urllib.parse.quote)
+
+    def get(self):
+        response = requests.get(
+            self.ssrs_url,
+            params=self.params,
+            stream=True,
+            auth=HttpNtlmAuth(self.ssrs_usr, self.ssrs_pwd),
+        )
+
+        if response.status_code == 200:
+            data = response.content.decode("utf8")
+            return data
+        return None
+
+
+class HotelData:
+    def __init__(self, destination):
+        self.ssrs_url = (
+            Config.SSRS_BASE_URL + destination + " Reports/Main Data/HotelList"
+        )
+        self.ssrs_usr = Config.SSRS_USERNAME
+        self.ssrs_pwd = Config.SSRS_PASSWORD
+        self.payload = [
+            ("rs:Command", "Render"),
+            ("rs:Format", "CSV"),
+            ("rc:ItemPath", "table1"),
+        ]
+
         self.params = urllib.parse.urlencode(self.payload, quote_via=urllib.parse.quote)
 
     def get(self):
