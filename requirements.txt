@@ -9,3 +9,7 @@ scikit-learn
 sqlalchemy
 xlsxwriter
 pytz
+jupyterlab-code-formatter
+black
+isort
+sqlacodegen
