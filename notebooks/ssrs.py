@@ -80,7 +80,7 @@ class RoomMapping:
             ("ReservationEndDate_To:isnull", True),
             ("RoomID:isnull", True),
             ("Active", "E"),
-            ("Active", "H"),
+            #("Active", "H"),
             ("Notes", "0"),
             ("gua", True),
             ("gua", False),
