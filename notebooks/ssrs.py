@@ -8,7 +8,9 @@ from requests_ntlm import HttpNtlmAuth
 
 class BookingData:
     def __init__(self, destination, date_from, date_to):
-        self.ssrs_url = Config.SSRS_BASE_URL + destination + " Reports/Reservations/Bookings Data"
+        self.ssrs_url = (
+            Config.SSRS_BASE_URL + destination + " Reports/Reservations/Bookings Data"
+        )
         self.ssrs_usr = Config.SSRS_USERNAME
         self.ssrs_pwd = Config.SSRS_PASSWORD
         self.payload = [
@@ -50,7 +52,9 @@ class BookingData:
             if len(data) > 424:
                 return data
             else:
-                logging.warning(f"No new data available for: {self.ssrs_url.split('?')[1]}")
+                logging.warning(
+                    f"No new data available for: {self.ssrs_url.split('?')[1]}"
+                )
         except requests.exceptions.HTTPError as e:
             logging.error(f"HTTP error occurred: {str(e)}")
         except requests.exceptions.RequestException as e:
@@ -80,7 +84,7 @@ class RoomMapping:
             ("ReservationEndDate_To:isnull", True),
             ("RoomID:isnull", True),
             ("Active", "E"),
-            #("Active", "H"),
+            # ("Active", "H"),
             ("Notes", "0"),
             ("gua", True),
             ("gua", False),

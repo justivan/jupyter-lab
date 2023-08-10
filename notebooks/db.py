@@ -17,6 +17,12 @@ mapping_hotel_room = Table(
     autoload_with=engine
 )
 
+mapping_operator = Table(
+    "mapping_operator",
+    metadata,
+    autoload_with=engine
+)
+
 clients_operator = Table(
     "clients_operator",
     metadata,
@@ -31,6 +37,12 @@ accommodation_hotel_room = Table(
 
 reservations_booking = Table(
     "reservations_booking",
+    metadata,
+    autoload_with=engine,
+)
+
+reservations_booking_staging = Table(
+    "reservations_booking_staging",
     metadata,
     autoload_with=engine,
 )
@@ -68,11 +80,11 @@ class Query:
                     or_(
                         and_(
                             mapping_hotel_room.c.room_code == row["room_code"],
-                            accommodation_hotel_room.c.hotel_id == row["hotel_id_y"],
+                            accommodation_hotel_room.c.hotel_id == row["hotel_id"],
                         ),
                         and_(
                             accommodation_hotel_room.c.name == row["room_type"],
-                            accommodation_hotel_room.c.hotel_id == row["hotel_id_y"],
+                            accommodation_hotel_room.c.hotel_id == row["hotel_id"],
                         ),
                     )
                 )
