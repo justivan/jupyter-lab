@@ -105,7 +105,7 @@ class BookingDataReadCsv(BaseEstimator, TransformerMixin):
     def transform(self, X):
         if X is not None:
             return pd.read_csv(
-                #X,
+                # X,
                 io.StringIO(X),
                 header=0,
                 names=[
@@ -206,11 +206,43 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
             for col in ["id", "id_x", "id_y", "id_z"]:
                 if pd.notna(row[col]):
                     return row[col]
-            return -1
+            return None
 
         if X is not None:
             # Operator Code
             X["operator_code"] = X["operator_code"].fillna(X["hotel_id"]).apply(str)
+            # Text Case
+            for col in ["guest_name", "room_code", "meal"]:
+                X[col] = X[col].str.upper()
+
+            for col in ["status", "status4", "status5"]:
+                X[col] = X[col].str.capitalize()
+
+            # Cancellation Date
+            # Convert "1900-01-01" to pd.NA
+            X["cancellation_date"] = X["cancellation_date"].replace("1900-01-01", pd.NA)
+
+            # Fill missing values with "last_modified_date" where "status" is "Can"
+            X.loc[
+                X["cancellation_date"].isna() & (X["status"] == "Can"),
+                "cancellation_date",
+            ] = X["last_modified_date"]
+
+            # Set non-matching "status" values to pd.NA
+            X.loc[
+                ~X["cancellation_date"].isna() & (X["status"] != "Can"),
+                "cancellation_date",
+            ] = pd.NA
+
+            # Update Status
+            X["status"] = X["status"].apply(lambda x: x if x == "Can" else "Ok")
+
+            # Price Info
+            X.loc[X["purchase_price"] < 1, "purchase_price"] = 0
+            X.loc[X["sales_price"] < 1, "sales_price"] = 0
+
+            # Fill the rest of blank fields with 0 if numerical
+            X = X.apply(lambda x: x.fillna(0) if x.dtype.kind in "biufc" else x)
 
             # Hotel ID, Charter Bool
             X = X.merge(
@@ -251,7 +283,7 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
                     suffixes=("", "_z"),
                 )
             )
-            X["room_id"] = X.apply(_get_room_id, axis=1).astype(int)
+            X["room_id"] = X.apply(_get_room_id, axis=1).fillna(-1).astype(int)
 
             # Meal ID
             X["meal"] = X["meal"].str.replace(r"(?i)\*| NO", "", regex=True).str.strip()
@@ -273,41 +305,9 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
             )
             X["operator_id"] = X["operator_id"].fillna(-1).astype(int)
 
-            # Text Case
-            for col in ["guest_name", "room_code", "meal"]:
-                X[col] = X[col].str.upper()
-
-            for col in ["status", "status4", "status5"]:
-                X[col] = X[col].str.capitalize()
-
-            # Cancellation Date
-            # Convert "1900-01-01" to pd.NA
-            X["cancellation_date"] = X["cancellation_date"].replace("1900-01-01", pd.NA)
-
-            # Fill missing values with "last_modified_date" where "status" is "Can"
-            X.loc[
-                X["cancellation_date"].isna() & (X["status"] == "Can"),
-                "cancellation_date",
-            ] = X["last_modified_date"]
-
-            # Set non-matching "status" values to pd.NA
-            X.loc[
-                ~X["cancellation_date"].isna() & (X["status"] != "Can"),
-                "cancellation_date",
-            ] = pd.NA
-
-            # Update Status
-            X["status"] = X["status"].apply(lambda x: x if x == "Can" else "Ok")
-
-            # Price Info
-            X.loc[X["purchase_price"] < 1, "purchase_price"] = 0
-            X.loc[X["sales_price"] < 1, "sales_price"] = 0
-
-            # Fill the rest of blank fields with 0 if numerical
-            X = X.apply(lambda x: x.fillna(0) if x.dtype.kind in "biufc" else x)
-
             # Fill the rest of blank fields with None for database insertion
             X.replace({pd.NaT: None, pd.NA: None, np.NaN: None}, inplace=True)
+            
 
             # Drop fields
             X.drop(
@@ -330,3 +330,4 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
 
             return X
         return None
+        
