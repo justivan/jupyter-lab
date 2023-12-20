@@ -117,6 +117,8 @@ class HotelData:
         self.ssrs_usr = Config.SSRS_USERNAME
         self.ssrs_pwd = Config.SSRS_PASSWORD
         self.payload = [
+            ("Active", True),
+            ("Active", False),
             ("rs:Command", "Render"),
             ("rs:Format", "CSV"),
             ("rc:ItemPath", "table1"),

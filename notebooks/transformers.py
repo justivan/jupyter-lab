@@ -37,7 +37,7 @@ class HotelDataReadCsv(BaseEstimator, TransformerMixin):
                     "Country": str,
                     "State": str,
                     "City": str,
-                    "HotelTypeID": pd.Int64Dtype(),
+                    "HotelTypeID": str,
                     "Longitude": float,
                     "Latitude": float,
                     "Giata": pd.Int64Dtype(),
@@ -73,6 +73,8 @@ class HotelDataEncoder(BaseEstimator, TransformerMixin):
             217636,  # TEST HOTEL
             218648,  # CRUISE
             218736,  # TEST HOTEL
+            219137, # PP_NOACCOM
+            219138, # PP_NOACCOM
         ]
 
     def fit(self, X, y=None):
@@ -307,7 +309,6 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
 
             # Fill the rest of blank fields with None for database insertion
             X.replace({pd.NaT: None, pd.NA: None, np.NaN: None}, inplace=True)
-            
 
             # Drop fields
             X.drop(
@@ -327,7 +328,5 @@ class BookingDataEncoder(BaseEstimator, TransformerMixin):
                 axis=1,
                 inplace=True,
             )
-
             return X
         return None
-        
